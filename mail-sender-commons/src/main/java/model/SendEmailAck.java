@@ -1,19 +1,21 @@
 package model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by Dulaj on 2019-06-08.
  */
-public class SendEmailAck {
+public class SendEmailAck implements Serializable{
     private String requestID;
     private Status status;
     
     public SendEmailAck() {
-        //        default
+        this.status = Status.ERROR;
     }
     
     public SendEmailAck(String requestID) {
+        this();
         this.requestID = requestID;
     }
     

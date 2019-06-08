@@ -9,7 +9,7 @@ import java.util.Objects;
 public class SendEmail implements Serializable {
     private String requestID;
     private String sender;
-    private String email;
+    private String recipient;
     private String subject;
     private String text;
     
@@ -38,12 +38,12 @@ public class SendEmail implements Serializable {
         this.sender = sender;
     }
     
-    public String getEmail() {
-        return email;
+    public String getRecipient() {
+        return recipient;
     }
     
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRecipient(String email) {
+        this.recipient = email;
     }
     
     public String getSubject() {
