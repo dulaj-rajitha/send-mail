@@ -2,7 +2,6 @@ package app;
 
 import model.SendEmail;
 import model.SendEmailAck;
-import model.Status;
 import support.CommonLogger;
 import util.DataConversionUtil;
 
@@ -12,7 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -53,57 +52,40 @@ public class MailClient {
         
     }
     
-    public List<SendEmailAck> sendMails() {
-        List<SendEmailAck> responses = IntStream.range(0, requestCount).boxed()
+    public List<SendEmailAck> sendMailsAsync() {
+        List<SendEmail> mails = IntStream.range(0, requestCount).boxed()
                 .map(String::valueOf)
                 .map(this::generateSendMail)
-//                .parallel()
-                .map(this::sendMail)
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
-        long successCount = responses.stream()
-                .filter(ack -> Objects.equals(Status.OK, ack.getStatus()))
-                .count();
-        
-        CommonLogger.logInfoMessage(successCount + "/" + requestCount + " requests succeeded");
-        
-        return responses;
+        return mails.stream()
+                .map(this::sendMailAsync)
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
     
-    
-    private SendEmailAck sendMail(SendEmail mail) {
-        try {
-            return executorService
-                    .submit(() -> {
-                        
-                        try (Socket socket = new Socket(serviceHost, servicePort);
-                             ObjectOutputStream out =
-                                     new ObjectOutputStream(socket.getOutputStream());
-                             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
-                        ) {
-                            CommonLogger.logInfoMessage("client sending mail :" + mail.getRequestID() + " using thread " + Thread.currentThread().getName());
-                            //  send the mail
-                            out.writeObject(mail);
-                            //  get the ack
-                            SendEmailAck ack = DataConversionUtil.convertToSendEmailAck(in.readObject());
-                            CommonLogger.logInfoMessage("got the ack for req: " + ack.getRequestID() + " as: " + ack.getStatus());
-                            return ack;
-                        } catch (IOException e) {
-                            CommonLogger.logErrorMessage(e);
-                        }
-                        return null;
-                    })
-                    .get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            CommonLogger.logErrorMessage(e);
-        } catch (ExecutionException e) {
-            CommonLogger.logErrorMessage(e);
-        }
-        
-        return null;
+    private CompletableFuture<SendEmailAck> sendMailAsync(SendEmail mail) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Socket socket = new Socket(serviceHost, servicePort);
+                 ObjectOutputStream out =
+                         new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+            ) {
+                CommonLogger.logInfoMessage("client sending mail :" + mail.getRequestID() + " using thread " + Thread.currentThread().getName());
+                //  send the mail
+                out.writeObject(mail);
+                //  get the ack
+                SendEmailAck ack = DataConversionUtil.convertToSendEmailAck(in.readObject());
+                CommonLogger.logInfoMessage("got the ack for req: " + ack.getRequestID() + " as: " + ack.getStatus());
+                return ack;
+            } catch (IOException | ClassNotFoundException e) {
+                CommonLogger.logErrorMessage(this, e);
+            }
+            return null;
+        }, executorService);
     }
+    
     
     private SendEmail generateSendMail(String requestID) {
         SendEmail sendEmail = new SendEmail();
@@ -115,6 +97,5 @@ public class MailClient {
         
         return sendEmail;
     }
-    
     
 }

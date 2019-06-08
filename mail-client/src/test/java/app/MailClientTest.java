@@ -17,7 +17,7 @@ public class MailClientTest {
     @Test
     public void sendMails() throws Exception {
         MailClient mailClient = new MailClient();
-        Collection<SendEmailAck> sendEmailAcks = mailClient.sendMails();
+        Collection<SendEmailAck> sendEmailAcks = mailClient.sendMailsAsync();
         
         Assert.assertNotNull(sendEmailAcks);
         int requstCount = Integer.parseInt(DEFAULT_REQUEST_COUNT);
