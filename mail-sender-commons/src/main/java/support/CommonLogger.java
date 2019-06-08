@@ -38,8 +38,12 @@ public final class CommonLogger {
         LOGGER.error(throwable.getMessage(), throwable);
     }
     
-    public static void logErrorMessage(Object origin, String message, Throwable args) {
-        getLogger(origin).error(message, args);
+    public static void logErrorMessage(Object origin, Throwable throwable) {
+        getLogger(origin).error(throwable.getMessage(), throwable);
+    }
+    
+    public static void logErrorMessage(Object origin, String message, Throwable throwable) {
+        getLogger(origin).error(message, throwable);
     }
     
 }
