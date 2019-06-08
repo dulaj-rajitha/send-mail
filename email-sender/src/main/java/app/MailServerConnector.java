@@ -38,13 +38,17 @@ public class MailServerConnector {
             message.setSubject(sendEmail.getSubject());
             message.setText(sendEmail.getText());
             
+            CommonLogger.logInfoMessage("sending email to mail server of requestID : " + sendEmail.getRequestID());
             Transport.send(message);
             
             emailAck.setStatus(Status.OK);
+            Thread.sleep(100);
             
         } catch (MessagingException e) {
             CommonLogger.logErrorMessage(e);
             emailAck.setStatus(Status.ERROR);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         
         return emailAck;

@@ -7,8 +7,6 @@ import model.SendEmail;
 import model.SendEmailAck;
 import support.CommonLogger;
 
-import java.io.IOException;
-
 /**
  * Created by Dulaj on 2019-06-08.
  */
@@ -25,13 +23,8 @@ public final class DataConversionUtil {
         //        util class with that cannot be instantiated
     }
     
-    public static SendEmail convertToSendEmail(String input) {
-        try {
-            return objectMapper.readValue(input, SendEmail.class);
-        } catch (IOException e) {
-            CommonLogger.logErrorMessage(e);
-            return null;
-        }
+    public static SendEmail convertToSendEmail(Object input) {
+        return objectMapper.convertValue(input, SendEmail.class);
     }
     
     public static String getJsonString(SendEmail sendEmail) {
@@ -43,13 +36,8 @@ public final class DataConversionUtil {
         }
     }
     
-    public static SendEmailAck convertToSendEmailAck(String input) {
-        try {
-            return objectMapper.readValue(input, SendEmailAck.class);
-        } catch (IOException e) {
-            CommonLogger.logErrorMessage(e);
-            return null;
-        }
+    public static SendEmailAck convertToSendEmailAck(Object input) {
+        return objectMapper.convertValue(input, SendEmailAck.class);
     }
     
     public static String getJsonString(SendEmailAck sendEmailAck) {

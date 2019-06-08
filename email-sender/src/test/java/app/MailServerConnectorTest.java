@@ -33,7 +33,8 @@ public class MailServerConnectorTest {
         
         String requestId = "1";
         
-        SendEmail sendEmail = new SendEmail(requestId);
+        SendEmail sendEmail = new SendEmail();
+        sendEmail.setRequestID(requestId);
         sendEmail.setSender("test1@test.com");
         sendEmail.setRecipient("test2@test.com");
         sendEmail.setSubject(sendEmail.getRequestID());

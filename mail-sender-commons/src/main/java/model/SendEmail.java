@@ -18,10 +18,6 @@ public class SendEmail implements Serializable {
         //        default construct
     }
     
-    public SendEmail(String requestID) {
-        this.requestID = requestID;
-    }
-    
     public String getRequestID() {
         return requestID;
     }

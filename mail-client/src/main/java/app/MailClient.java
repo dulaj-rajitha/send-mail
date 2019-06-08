@@ -6,8 +6,8 @@ import model.Status;
 import support.CommonLogger;
 import util.DataConversionUtil;
 
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
@@ -23,10 +23,10 @@ import java.util.stream.IntStream;
  */
 public class MailClient {
     
-    static final String DEFAULT_REQUEST_COUNT = "4";
+    static final String DEFAULT_REQUEST_COUNT = "16";
     //    configs
     private static final String THREAD_COUNT_KEY = "THREAD_COUNT";
-    private static final String DEFAULT_THREADS = "2";
+    private static final String DEFAULT_THREADS = "8";
     private static final String REQUEST_COUNT_KEY = "REQUEST_COUNT";
     
     private static final String SERVICE_HOST_KEY = "SERVICE_HOST";
@@ -54,15 +54,16 @@ public class MailClient {
     }
     
     public List<SendEmailAck> sendMails() {
-        List<SendEmailAck> responses = IntStream.rangeClosed(0, requestCount).boxed()
+        List<SendEmailAck> responses = IntStream.range(0, requestCount).boxed()
                 .map(String::valueOf)
                 .map(this::generateSendMail)
+//                .parallel()
                 .map(this::sendMail)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
         long successCount = responses.stream()
-                .filter(ack -> !Objects.equals(Status.OK, ack.getStatus()))
+                .filter(ack -> Objects.equals(Status.OK, ack.getStatus()))
                 .count();
         
         CommonLogger.logInfoMessage(successCount + "/" + requestCount + " requests succeeded");
@@ -79,13 +80,15 @@ public class MailClient {
                         try (Socket socket = new Socket(serviceHost, servicePort);
                              ObjectOutputStream out =
                                      new ObjectOutputStream(socket.getOutputStream());
-                             DataInputStream in = new DataInputStream(socket.getInputStream())
+                             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
                         ) {
+                            CommonLogger.logInfoMessage("client sending mail :" + mail.getRequestID() + " using thread " + Thread.currentThread().getName());
                             //  send the mail
-                            out.writeObject(DataConversionUtil.getJsonString(mail));
+                            out.writeObject(mail);
                             //  get the ack
-                            return DataConversionUtil.convertToSendEmailAck(in.readUTF());
-                            
+                            SendEmailAck ack = DataConversionUtil.convertToSendEmailAck(in.readObject());
+                            CommonLogger.logInfoMessage("got the ack for req: " + ack.getRequestID() + " as: " + ack.getStatus());
+                            return ack;
                         } catch (IOException e) {
                             CommonLogger.logErrorMessage(e);
                         }
@@ -103,7 +106,8 @@ public class MailClient {
     }
     
     private SendEmail generateSendMail(String requestID) {
-        SendEmail sendEmail = new SendEmail(requestID);
+        SendEmail sendEmail = new SendEmail();
+        sendEmail.setRequestID(requestID);
         sendEmail.setSubject(requestID);
         sendEmail.setText(requestID);
         sendEmail.setSender(SENDER_ADDRESS);

@@ -5,7 +5,7 @@ import model.Status;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 import static app.MailClient.DEFAULT_REQUEST_COUNT;
@@ -17,7 +17,7 @@ public class MailClientTest {
     @Test
     public void sendMails() throws Exception {
         MailClient mailClient = new MailClient();
-        List<SendEmailAck> sendEmailAcks = mailClient.sendMails();
+        Collection<SendEmailAck> sendEmailAcks = mailClient.sendMails();
         
         Assert.assertNotNull(sendEmailAcks);
         int requstCount = Integer.parseInt(DEFAULT_REQUEST_COUNT);

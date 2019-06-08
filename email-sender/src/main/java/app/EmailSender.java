@@ -5,8 +5,8 @@ import model.SendEmailAck;
 import support.CommonLogger;
 import util.DataConversionUtil;
 
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -54,23 +54,26 @@ public class EmailSender implements Runnable {
         while (running) {
             try (ServerSocket serverSocket = new ServerSocket(servicePort);
                  Socket socket = serverSocket.accept();
-                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                 ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
                  ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())
             ) {
                 
-                CommonLogger.logInfoMessage("waiting for a client connection");
+                CommonLogger.logInfoMessage("receiving a client mail");
                 
                 //  read the mail
-                String clientData = inputStream.readUTF();
+                Object clientData = inputStream.readObject();
                 SendEmail inputMail = DataConversionUtil.convertToSendEmail(clientData);
                 
                 // send the mail through fake SMTP server
                 SendEmailAck mailServerAck = mailServerConnector.sendMailToServer(inputMail);
                 
                 //  write ack to client
-                outputStream.writeObject(DataConversionUtil.getJsonString(mailServerAck));
+                
+                outputStream.writeObject(mailServerAck);
                 
             } catch (IOException e) {
+                CommonLogger.logErrorMessage(e);
+            } catch (ClassNotFoundException e) {
                 CommonLogger.logErrorMessage(e);
             }
         }
