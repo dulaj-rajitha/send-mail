@@ -7,6 +7,9 @@ import java.util.Objects;
  * Created by Dulaj on 2019-06-08.
  */
 public class SendEmail implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
     private String requestID;
     private String sender;
     private String recipient;

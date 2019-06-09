@@ -6,7 +6,10 @@ import java.util.Objects;
 /**
  * Created by Dulaj on 2019-06-08.
  */
-public class SendEmailAck implements Serializable{
+public class SendEmailAck implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
     private String requestID;
     private Status status;
     
@@ -57,5 +60,13 @@ public class SendEmailAck implements Serializable{
     @Override
     public int hashCode() {
         return Objects.hashCode(requestID);
+    }
+    
+    @Override
+    public String toString() {
+        return "SendEmailAck{" +
+                "requestID='" + requestID + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
