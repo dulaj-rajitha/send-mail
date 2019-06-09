@@ -40,11 +40,11 @@ public class EmailSender {
         executorService = Executors.newFixedThreadPool(threadCount);
         servicePort = Integer.parseInt(System.getProperty(SERVICE_PORT_KEY, DEFAULT_PORT));
         
-        Properties mailConfigurations;
         String mailServerHost = System.getProperty(MAIL_SERVER_HOST_KEY, DEFAULT_MAIL_SERVER_HOST);
         String mailServerPort = System.getProperty(MAIL_SERVER_POST_KEY, DEFAULT_MAIL_SERVER_PORT);
-        
-        mailConfigurations = new Properties();
+
+        //        todo: these can be get form environment variables as well
+        Properties mailConfigurations = new Properties();
         mailConfigurations.put("mail.smtp.auth", "false");
         mailConfigurations.put("mail.smtp.starttls.enable", "true");
         mailConfigurations.put("mail.smtp.host", mailServerHost);
@@ -95,6 +95,8 @@ public class EmailSender {
             //  read the mail
             Object clientData = inputStream.readObject();
             SendEmail inputMail = DataConversionUtil.convertToSendEmail(clientData);
+            
+            //  todo: can validate the mail before send to SMTP
             
             // send the mail through fake SMTP server
             SendEmailAck mailServerAck = mailServerConnector.sendMailToServer(inputMail);
