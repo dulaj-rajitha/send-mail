@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -39,13 +39,13 @@ public class MailClient {
     
     private int servicePort;
     private String serviceHost;
-    private ScheduledExecutorService executorService;
+    private ExecutorService executorService;
     private int requestCount;
     
     public MailClient() {
         
         int threadCount = Integer.parseInt(System.getProperty(THREAD_COUNT_KEY, DEFAULT_THREADS));
-        executorService = Executors.newScheduledThreadPool(threadCount);
+        executorService = Executors.newFixedThreadPool(threadCount);
         serviceHost = System.getProperty(SERVICE_HOST_KEY, DEFAULT_HOST);
         servicePort = Integer.parseInt(System.getProperty(SERVICE_PORT_KEY, DEFAULT_PORT));
         
@@ -57,6 +57,7 @@ public class MailClient {
         MailClient mailClient = new MailClient();
         Collection<SendEmailAck> sendEmailAcks = mailClient.sendMailsAsync();
         CommonLogger.logInfoMessage("got acknowledgements: " + sendEmailAcks);
+        mailClient.executorService.shutdown();
         System.exit(0);
     }
     
