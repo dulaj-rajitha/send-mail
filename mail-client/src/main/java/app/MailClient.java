@@ -58,7 +58,7 @@ public class MailClient {
                 .map(this::generateSendMail)
                 .collect(Collectors.toList());
         
-        return mails.stream()
+        return mails.parallelStream()
                 .map(this::sendMailAsync)
                 .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
@@ -72,12 +72,12 @@ public class MailClient {
                          new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
             ) {
-                CommonLogger.logInfoMessage("client sending mail :" + mail.getRequestID() + " using thread " + Thread.currentThread().getName());
+                CommonLogger.logInfoMessage(this, "client sending mail :" + mail.getRequestID() + " using thread " + Thread.currentThread().getName());
                 //  send the mail
                 out.writeObject(mail);
                 //  get the ack
                 SendEmailAck ack = DataConversionUtil.convertToSendEmailAck(in.readObject());
-                CommonLogger.logInfoMessage("got the ack for req: " + ack.getRequestID() + " as: " + ack.getStatus());
+                CommonLogger.logInfoMessage(this, "got the ack for req: " + ack.getRequestID() + " as: " + ack.getStatus());
                 return ack;
             } catch (IOException | ClassNotFoundException e) {
                 CommonLogger.logErrorMessage(this, e);
