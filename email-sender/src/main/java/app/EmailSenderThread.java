@@ -48,7 +48,7 @@ public class EmailSenderThread extends Thread {
             socket.close();
             
         } catch (IOException | ClassNotFoundException e) {
-            CommonLogger.logErrorMessage(e);
+            CommonLogger.logErrorMessage(this,e);
         }
     }
 }

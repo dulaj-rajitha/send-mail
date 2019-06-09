@@ -31,7 +31,7 @@ public final class DataConversionUtil {
         try {
             return objectMapper.writeValueAsString(sendEmail);
         } catch (JsonProcessingException e) {
-            CommonLogger.logErrorMessage(e);
+            CommonLogger.logErrorMessage(DataConversionUtil.class, e);
             return null;
         }
     }
@@ -44,7 +44,7 @@ public final class DataConversionUtil {
         try {
             return objectMapper.writeValueAsString(sendEmailAck);
         } catch (JsonProcessingException e) {
-            CommonLogger.logErrorMessage(e);
+            CommonLogger.logErrorMessage(DataConversionUtil.class, e);
             return null;
         }
     }
