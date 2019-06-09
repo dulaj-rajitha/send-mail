@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +51,13 @@ public class MailClient {
         
         requestCount = Integer.parseInt(System.getProperty(REQUEST_COUNT_KEY, DEFAULT_REQUEST_COUNT));
         
+    }
+    
+    public static void main(String[] args) {
+        MailClient mailClient = new MailClient();
+        Collection<SendEmailAck> sendEmailAcks = mailClient.sendMailsAsync();
+        CommonLogger.logInfoMessage("got acknowledgements: " + sendEmailAcks);
+        System.exit(0);
     }
     
     public List<SendEmailAck> sendMailsAsync() {
