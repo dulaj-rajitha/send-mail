@@ -20,7 +20,7 @@
         <maven.shade.plugin.version>3.2.1</maven.shade.plugin.version>
         <junit.version>4.12</junit.version>
         <javax.mail.version>1.6.2</javax.mail.version>
-        <jackson.databind.version>2.9.9</jackson.databind.version>
+        <jackson.databind.version>2.9.10.7</jackson.databind.version>
         <slf4j.version>1.7.25</slf4j.version>
     </properties>
 
